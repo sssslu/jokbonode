@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 var cors = require("cors");
 const MongoClient = require("mongodb").MongoClient;
-app.use(express.urlencoded({ extended: true })); //slu : nodejs 에서 html body를 제대로 읽어오려면 이 옵션을 넣어줘야함
+// app.use(express.urlencoded({ extended: true })); //slu : nodejs 에서 html body를 제대로 읽어오려면 이 옵션을 넣어줘야함
+app.use(express.json());
 app.use(cors());
 var db;
 MongoClient.connect(
@@ -50,6 +51,7 @@ app.get("/list", function (r, a) {
     .find()
     .toArray(function (e, r) {
       console.log(r);
-      a.render("list.ejs", { result: r });
+      a.send(r);
+      // a.render("list.ejs", { result: r });
     });
 });
