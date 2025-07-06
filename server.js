@@ -6,6 +6,7 @@ app.use(express.urlencoded({ extended: true })); //slu : nodejs 에서 html body
 app.use(express.json());
 app.use(cors());
 var db;
+table_name = "post2"
 
 MongoClient.connect(
   "mongodb+srv://jokbo:1111@cluster0.kawqw2r.mongodb.net/?retryWrites=true&w=majority",//보안허술
@@ -32,7 +33,7 @@ app.get("/admin", function (r, a) {
 app.post("/create", function (r, a) {
 
   if (r.body.password == "1234") {//보안허술
-    db.collection("post2").insertOne(
+    db.collection(table_name).insertOne(
       {
         _id: parseInt(r.body._id),
         ancUID: parseInt(r.body.ancUID),
@@ -64,7 +65,7 @@ app.patch("/update/:_id", async function (req, res) { //id는 파라미터 쿼�
   var options = { upsert: true };
 
   try {
-    const result = await db.collection("post2").updateOne(query, update, options);
+    const result = await db.collection(table_name).updateOne(query, update, options);
     res.send("Update completed successfully.");
   } catch (error) {
     console.error("Error updating document:", error);
@@ -73,7 +74,7 @@ app.patch("/update/:_id", async function (req, res) { //id는 파라미터 쿼�
 });
 
 app.get("/list", function (r, a) {
-  db.collection("post2")
+  db.collection(table_name)
     .find(r.query)
     .toArray(async (e, dbItems) => {
       var updarray = [];
@@ -86,7 +87,7 @@ app.get("/list", function (r, a) {
         var ugo;
 
         const r = await db
-          .collection("post2")
+          .collection(table_name)
           .find({ _id: dbItem.ancUID })
           .toArray();
         ufo = r[0];
@@ -99,7 +100,7 @@ app.get("/list", function (r, a) {
           };
         } else {
           const r2 = await db
-            .collection("post2")
+            .collection(table_name)
             .find({ _id: ufo.ancUID })
             .toArray();
           ugo = r2[0];
@@ -143,7 +144,7 @@ app.get("/listlimited", function (r, a) {
   const pageSize = 100;
   var pageNumber = 1; //r 로부터 받아와야하는 값임
   var skipAmount = (pageNumber - 1) * pageSize;
-  db.collection("post2")
+  db.collection(table_name)
     .find().skip(skipAmount).limit(pageSize)
     .toArray(async (e, dbItems) => {
       var updarray = [];
@@ -156,7 +157,7 @@ app.get("/listlimited", function (r, a) {
         var ugo;
 
         const r = await db
-          .collection("post2")
+          .collection(table_name)
           .find({ _id: dbItem.ancUID })
           .toArray();
         ufo = r[0];
@@ -169,7 +170,7 @@ app.get("/listlimited", function (r, a) {
           };
         } else {
           const r2 = await db
-            .collection("post2")
+            .collection(table_name)
             .find({ _id: ufo.ancUID })
             .toArray();
           ugo = r2[0];
@@ -210,7 +211,7 @@ app.get("/listlimited", function (r, a) {
 });
 
 app.get("/all", function (req, ans) {
-  db.collection("post2")
+  db.collection(table_name)
     .find()
     .toArray(function (e, r) {
       var oriArray = r;
@@ -357,16 +358,16 @@ app.get("/search", async function (r, a) {
 
   switch (number) {
     case 1:
-      oriArray = await db.collection("post2").find({ myName: r.query.myName }).toArray()
+      oriArray = await db.collection(table_name).find({ myName: r.query.myName }).toArray()
       break;
     case 2:
-      oriArray = await db.collection("post2").find({ mySae: parseInt(r.query.mySae) }).toArray()
+      oriArray = await db.collection(table_name).find({ mySae: parseInt(r.query.mySae) }).toArray()
       break;
     case 3:
       //아빠이름만 있는경우
-      fatherObjectArray = await db.collection("post2").find({ myName: r.query.fatherName }).toArray()
+      fatherObjectArray = await db.collection(table_name).find({ myName: r.query.fatherName }).toArray()
       for (father of fatherObjectArray) {
-        var tmpArray = await db.collection("post2").find({ ancUID: parseInt(father._id) }).toArray()
+        var tmpArray = await db.collection(table_name).find({ ancUID: parseInt(father._id) }).toArray()
         for (tmpobject of tmpArray) {
           oriArray.push(tmpobject)
         }
@@ -374,11 +375,11 @@ app.get("/search", async function (r, a) {
       break;
     case 4:
       //할아버지 이름만 있는 경우
-      grandpaObjectArray = await db.collection("post2").find({ myName: r.query.grandPaName }).toArray()
+      grandpaObjectArray = await db.collection(table_name).find({ myName: r.query.grandPaName }).toArray()
       for (grandfather of grandpaObjectArray) {
-        var fatherObjectArray = await db.collection("post2").find({ ancUID: parseInt(grandfather._id) }).toArray()
+        var fatherObjectArray = await db.collection(table_name).find({ ancUID: parseInt(grandfather._id) }).toArray()
         for (father of fatherObjectArray) {
-          var tmpArray = await db.collection("post2").find({ ancUID: parseInt(father._id) }).toArray()
+          var tmpArray = await db.collection(table_name).find({ ancUID: parseInt(father._id) }).toArray()
           for (tmpobject of tmpArray) {
             oriArray.push(tmpobject)
           }
@@ -387,15 +388,15 @@ app.get("/search", async function (r, a) {
       break;
     case 5:
       //세와 이름 만 있는 경우 이름으로 쿼리 후 세로 거름
-      var arrayByNameAndSae = await db.collection("post2").find({ myName: r.query.myName, mySae: parseInt(r.query.mySae) }).toArray()
+      var arrayByNameAndSae = await db.collection(table_name).find({ myName: r.query.myName, mySae: parseInt(r.query.mySae) }).toArray()
       for (tmp of arrayByNameAndSae) {
         oriArray.push(tmp)
       }
       break;
     case 6:
       //이름 과 아빠이름 만 있는 경우, 이름으로 쿼리 후 아빠이름으로 거름
-      var arrayByName = await db.collection("post2").find({ myName: r.query.myName }).toArray()
-      var fatherARR = await db.collection("post2").find({ myName: r.query.fatherName }).toArray()
+      var arrayByName = await db.collection(table_name).find({ myName: r.query.myName }).toArray()
+      var fatherARR = await db.collection(table_name).find({ myName: r.query.fatherName }).toArray()
       var fatherUIDARR = []; //부 이름과 일치하는 사람들의 UID 배열 생성
       for (father of fatherARR) {
         fatherUIDARR.push(father._id)
@@ -409,22 +410,22 @@ app.get("/search", async function (r, a) {
     case 7:
       //이름과 할아버지 이름만 있는 경우, 이름으로 쿼리 후 할아버지이름으로 거름
       //1. 이름으로 쿼리 한 후 해당 이름과 일치하는 객체 배열을 만든다.   2. 할아버지이름으로 검색해 할아버지배열의 아들배열을 구한다. 3.FatherIsSonUIDArray 의 아들배열을 구한다   4.해당배열과 처음쿼리해온 배열의 _id를 비교한다
-      var arrayByName = await db.collection("post2").find({ myName: r.query.myName }).toArray() //1
-      var arrayByGName = await db.collection("post2").find({ myName: r.query.grandPaName }).toArray() //2
+      var arrayByName = await db.collection(table_name).find({ myName: r.query.myName }).toArray() //1
+      var arrayByGName = await db.collection(table_name).find({ myName: r.query.grandPaName }).toArray() //2
       var UIDofArrayByGName = []; //2
       var FatherIsSonUIDArray = []; //2
       for (n of arrayByGName) {//2
         UIDofArrayByGName.push(n._id)
       }
       for (guid of UIDofArrayByGName) {//2
-        var faissona = await db.collection("post2").find({ ancUID: guid }).toArray()
+        var faissona = await db.collection(table_name).find({ ancUID: guid }).toArray()
         for (f of faissona) {
           FatherIsSonUIDArray.push(f._id)
         }
       }
       var fass = [];//3
       for (fas of FatherIsSonUIDArray) {
-        var fasso = await db.collection("post2").find({ ancUID: fas }).toArray()
+        var fasso = await db.collection(table_name).find({ ancUID: fas }).toArray()
         for (fassoo of fasso) {
           fass.push(fassoo)
         }
@@ -444,9 +445,9 @@ app.get("/search", async function (r, a) {
       break;
     case 8:
       //세와 아빠이름만 있는경우
-      fatherObjectArray = await db.collection("post2").find({ myName: r.query.fatherName }).toArray()
+      fatherObjectArray = await db.collection(table_name).find({ myName: r.query.fatherName }).toArray()
       for (father of fatherObjectArray) {
-        var tmpArray = await db.collection("post2").find({ ancUID: parseInt(father._id) }).toArray()
+        var tmpArray = await db.collection(table_name).find({ ancUID: parseInt(father._id) }).toArray()
         for (tmpobject of tmpArray) {
           if (tmpobject.mySae == r.query.mySae) {
             oriArray.push(tmpobject)
@@ -456,11 +457,11 @@ app.get("/search", async function (r, a) {
       break;
     case 9:
       //세와 할아버지 이름만 있는경우
-      grandpaObjectArray = await db.collection("post2").find({ myName: r.query.grandPaName }).toArray()
+      grandpaObjectArray = await db.collection(table_name).find({ myName: r.query.grandPaName }).toArray()
       for (grandfather of grandpaObjectArray) {
-        var fatherObjectArray = await db.collection("post2").find({ ancUID: parseInt(grandfather._id) }).toArray()
+        var fatherObjectArray = await db.collection(table_name).find({ ancUID: parseInt(grandfather._id) }).toArray()
         for (father of fatherObjectArray) {
-          var tmpArray = await db.collection("post2").find({ ancUID: parseInt(father._id) }).toArray()
+          var tmpArray = await db.collection(table_name).find({ ancUID: parseInt(father._id) }).toArray()
           for (tmpobject of tmpArray) {
             if (tmpobject.mySae == r.query.mySae) {
               oriArray.push(tmpobject)
@@ -472,8 +473,8 @@ app.get("/search", async function (r, a) {
     case 10:
       //할아버지와 아빠이름만 있는 경우
       //1. 아빠이름으로 아빠배열을 쿼리한다. 2.할아버지이름으로 할아버지 UID 배열을 쿼리한다  3.아빠객체에 대하여 아빠객체의 ancUID 가 할아버지 UID 배열에 include 될때, 아빠객체의 uid를 아빠객체 UID 배열에 저장한다. 4.해당uid배열의 자식들을 모두 구해 출력한다.
-      fatherObjectArray = await db.collection("post2").find({ myName: r.query.fatherName }).toArray()//1
-      gfatherObjectArray = await db.collection("post2").find({ myName: r.query.grandPaName }).toArray()//2
+      fatherObjectArray = await db.collection(table_name).find({ myName: r.query.fatherName }).toArray()//1
+      gfatherObjectArray = await db.collection(table_name).find({ myName: r.query.grandPaName }).toArray()//2
       gfUIDA = [];
       faUIDA = [];
       for (tmp of gfatherObjectArray) {
@@ -487,15 +488,15 @@ app.get("/search", async function (r, a) {
       }
       //4
       for (tmp of faUIDA) {
-        var u = await db.collection("post2").find({ ancUID: tmp }).toArray()
+        var u = await db.collection(table_name).find({ ancUID: tmp }).toArray()
         for (ttmp of u) {
           oriArray.push(ttmp);
         }
       }
       break;
     case 11:
-      var arrayByName = await db.collection("post2").find({ myName: r.query.myName }).toArray()
-      var fatherARR = await db.collection("post2").find({ myName: r.query.fatherName }).toArray()
+      var arrayByName = await db.collection(table_name).find({ myName: r.query.myName }).toArray()
+      var fatherARR = await db.collection(table_name).find({ myName: r.query.fatherName }).toArray()
       var fatherUIDARR = []; //부 이름과 일치하는 사람들의 UID 배열 생성
       for (father of fatherARR) {
         fatherUIDARR.push(father._id)
@@ -509,22 +510,22 @@ app.get("/search", async function (r, a) {
       }
       break;
     case 12:
-      var arrayByName = await db.collection("post2").find({ myName: r.query.myName }).toArray() //1
-      var arrayByGName = await db.collection("post2").find({ myName: r.query.grandPaName }).toArray() //2
+      var arrayByName = await db.collection(table_name).find({ myName: r.query.myName }).toArray() //1
+      var arrayByGName = await db.collection(table_name).find({ myName: r.query.grandPaName }).toArray() //2
       var UIDofArrayByGName = []; //2
       var FatherIsSonUIDArray = []; //2
       for (n of arrayByGName) {//2
         UIDofArrayByGName.push(n._id)
       }
       for (guid of UIDofArrayByGName) {//2
-        var faissona = await db.collection("post2").find({ ancUID: guid }).toArray()
+        var faissona = await db.collection(table_name).find({ ancUID: guid }).toArray()
         for (f of faissona) {
           FatherIsSonUIDArray.push(f._id)
         }
       }
       var fass = [];//3
       for (fas of FatherIsSonUIDArray) {
-        var fasso = await db.collection("post2").find({ ancUID: fas }).toArray()
+        var fasso = await db.collection(table_name).find({ ancUID: fas }).toArray()
         for (fassoo of fasso) {
           fass.push(fassoo)
         }
@@ -546,8 +547,8 @@ app.get("/search", async function (r, a) {
 
       break;
     case 13:
-      fatherObjectArray = await db.collection("post2").find({ myName: r.query.fatherName }).toArray()//1
-      gfatherObjectArray = await db.collection("post2").find({ myName: r.query.grandPaName }).toArray()//2
+      fatherObjectArray = await db.collection(table_name).find({ myName: r.query.fatherName }).toArray()//1
+      gfatherObjectArray = await db.collection(table_name).find({ myName: r.query.grandPaName }).toArray()//2
       gfUIDA = [];
       faUIDA = [];
       for (tmp of gfatherObjectArray) {
@@ -561,7 +562,7 @@ app.get("/search", async function (r, a) {
       }
       //4
       for (tmp of faUIDA) {
-        var u = await db.collection("post2").find({ ancUID: tmp }).toArray()
+        var u = await db.collection(table_name).find({ ancUID: tmp }).toArray()
         for (ttmp of u) {
           if (ttmp.myName == r.query.myName) {
             oriArray.push(ttmp);
@@ -570,8 +571,8 @@ app.get("/search", async function (r, a) {
       }
       break;
     case 14:
-      fatherObjectArray = await db.collection("post2").find({ myName: r.query.fatherName }).toArray()//1
-      gfatherObjectArray = await db.collection("post2").find({ myName: r.query.grandPaName }).toArray()//2
+      fatherObjectArray = await db.collection(table_name).find({ myName: r.query.fatherName }).toArray()//1
+      gfatherObjectArray = await db.collection(table_name).find({ myName: r.query.grandPaName }).toArray()//2
       gfUIDA = [];
       faUIDA = [];
       for (tmp of gfatherObjectArray) {
@@ -585,7 +586,7 @@ app.get("/search", async function (r, a) {
       }
       //4
       for (tmp of faUIDA) {
-        var u = await db.collection("post2").find({ ancUID: tmp }).toArray()
+        var u = await db.collection(table_name).find({ ancUID: tmp }).toArray()
         for (ttmp of u) {
           if (ttmp.mySae == r.query.mySae) {
             oriArray.push(ttmp);
@@ -594,8 +595,8 @@ app.get("/search", async function (r, a) {
       }
       break;
     case 15:
-      fatherObjectArray = await db.collection("post2").find({ myName: r.query.fatherName }).toArray()//1
-      gfatherObjectArray = await db.collection("post2").find({ myName: r.query.grandPaName }).toArray()//2
+      fatherObjectArray = await db.collection(table_name).find({ myName: r.query.fatherName }).toArray()//1
+      gfatherObjectArray = await db.collection(table_name).find({ myName: r.query.grandPaName }).toArray()//2
       gfUIDA = [];
       faUIDA = [];
       for (tmp of gfatherObjectArray) {
@@ -609,7 +610,7 @@ app.get("/search", async function (r, a) {
       }
       //4
       for (tmp of faUIDA) {
-        var u = await db.collection("post2").find({ ancUID: tmp }).toArray()
+        var u = await db.collection(table_name).find({ ancUID: tmp }).toArray()
         for (ttmp of u) {
           if (ttmp.myName == r.query.myName && ttmp.mySae == r.query.mySae) {
             oriArray.push(ttmp);
@@ -626,7 +627,7 @@ app.get("/search", async function (r, a) {
   for (dbItem of oriArray) {
     var ufo;
     var ugo;
-    const r = await db.collection("post2").find({ _id: dbItem.ancUID }).toArray();
+    const r = await db.collection(table_name).find({ _id: dbItem.ancUID }).toArray();
     ufo = r[0];
     if (ufo == null) {
       var uf = {
@@ -635,7 +636,7 @@ app.get("/search", async function (r, a) {
         myNamechi: "-",
       };
     } else {
-      const r2 = await db.collection("post2").find({ _id: ufo.ancUID }).toArray();
+      const r2 = await db.collection(table_name).find({ _id: ufo.ancUID }).toArray();
       ugo = r2[0];
       var uf = {
         _id: ufo._id,
@@ -674,7 +675,7 @@ app.get("/search", async function (r, a) {
 //id 로 자명 찾아주는 api
 app.get("/findson/:_id", function (r, a) {
   let { _id } = r.params;
-  db.collection("post2")
+  db.collection(table_name)
     .find({ ancUID: _id })
     .toArray(function (e, r) {
       a.send(r);
@@ -684,7 +685,7 @@ app.get("/findson/:_id", function (r, a) {
 //id 로 객체 모든정보 띄워주는 api - id만주면됨
 app.get("/detail/:_id", function (r, a) {
   let { _id } = r.params;
-  db.collection("post2")
+  db.collection(table_name)
     .find({ _id: parseInt(_id) })
     .toArray(function (e, r) {
       a.send(r[0]);
@@ -696,7 +697,7 @@ app.get("/4sae/:_id", async function (r, answer) {
 
   let { _id } = r.params;
 
-  var z = await db.collection("post2").find({ _id: parseInt(_id) }).toArray();
+  var z = await db.collection(table_name).find({ _id: parseInt(_id) }).toArray();
 
   var minSae = z[0].mySae - 2;
   var maxSae = minSae + 4;
@@ -711,19 +712,19 @@ app.get("/4sae/:_id", async function (r, answer) {
   //0. 리스트에 본인 더함
   oriArray.push(me);
   //1. 리스트에 본인의 조상 더함 : 있을경우엔 더하고 없을경우엔 맒, 없을경우엔 2 건너뛰도록 함
-  var anc = await db.collection("post2").find({ _id: parseInt(me.ancUID) }).toArray();
+  var anc = await db.collection(table_name).find({ _id: parseInt(me.ancUID) }).toArray();
   var ancI = anc[0];
   if (ancI != undefined) {
     oriArray.push(ancI)
     //2. 리스트에 조상의 조상 더함, 없을경우엔 맒
-    var ancanc = await db.collection("post2").find({ _id: parseInt(ancI.ancUID) }).toArray();
+    var ancanc = await db.collection(table_name).find({ _id: parseInt(ancI.ancUID) }).toArray();
     var ancancI = ancanc[0];
     if (ancancI != undefined) {
       oriArray.push(ancancI)
     }
   }
   //3. 리스트에 본인이 조상인 애들 더함
-  var chil = await db.collection("post2").find({ ancUID: parseInt(me._id) }).toArray();
+  var chil = await db.collection(table_name).find({ ancUID: parseInt(me._id) }).toArray();
   for (var ch of chil) {
     oriArray.push(ch);
   }
@@ -763,12 +764,12 @@ app.get("/4sae/:_id", async function (r, answer) {
 app.get("/5sae/:_id", async function (r, answer) {
 
   let { _id } = r.params;
-  var z = await db.collection("post2").find({ _id: parseInt(_id) }).toArray();
+  var z = await db.collection(table_name).find({ _id: parseInt(_id) }).toArray();
   var minSae = z[0].mySae - 2;
   var maxSae = minSae + 4;
   if (minSae < 1) minSae = 0;
 
-  var oriArray = await db.collection("post2")
+  var oriArray = await db.collection(table_name)
     .find({ mySae: { $gt: (minSae - 1), $lt: (maxSae + 1) } })
     .toArray()
 
@@ -808,12 +809,12 @@ app.get("/5sae/:_id", async function (r, answer) {
 app.get("/10sae/:_id", async function (r, answer) {
 
   let { _id } = r.params;
-  var z = await db.collection("post2").find({ _id: parseInt(_id) }).toArray();
+  var z = await db.collection(table_name).find({ _id: parseInt(_id) }).toArray();
   var minSae = z[0].mySae - 4;
   var maxSae = minSae + 9;
   if (minSae < 1) minSae = 0;
 
-  var oriArray = await db.collection("post2")
+  var oriArray = await db.collection(table_name)
     .find({ mySae: { $gt: (minSae - 1), $lt: (maxSae + 1) } })
     .toArray()
 
@@ -853,7 +854,7 @@ app.get("/10sae/:_id", async function (r, answer) {
 app.get("/8chon/:_id", async function (r, answer) {
 
   let { _id } = r.params;
-  var z = await db.collection("post2").find({ _id: parseInt(_id) }).toArray();
+  var z = await db.collection(table_name).find({ _id: parseInt(_id) }).toArray();
 
 
   //3세 이하는 조회 불가능하게 설정 (무조건 고조할아버지까진 있도록 설계)
@@ -896,19 +897,19 @@ app.get("/8chon/:_id", async function (r, answer) {
   var gpo = null;
   var ggpo = null;
 
-  var poa = await db.collection("post2").find({ _id: parseInt(z[0].ancUID) }).toArray();
+  var poa = await db.collection(table_name).find({ _id: parseInt(z[0].ancUID) }).toArray();
   var po = poa[0];
 
-  var gpoa = await db.collection("post2").find({ _id: parseInt(po.ancUID) }).toArray();
+  var gpoa = await db.collection(table_name).find({ _id: parseInt(po.ancUID) }).toArray();
   var gpo = gpoa[0];
 
 
-  var ggpoa = await db.collection("post2").find({ _id: parseInt(gpo.ancUID) }).toArray();
+  var ggpoa = await db.collection(table_name).find({ _id: parseInt(gpo.ancUID) }).toArray();
   var ggpo = ggpoa[0];
   oriArray.push(ggpo);
 
 
-  var ggposa = await db.collection("post2").find({ ancUID: parseInt(ggpo._id) }).toArray();
+  var ggposa = await db.collection(table_name).find({ ancUID: parseInt(ggpo._id) }).toArray();
   var ggposua = [];
   for (var ggpos of ggposa) {
     oriArray.push(ggpos);
@@ -917,7 +918,7 @@ app.get("/8chon/:_id", async function (r, answer) {
 
   var gposua = [];
   for (var ggposu of ggposua) {
-    var tmp = await db.collection("post2").find({ ancUID: parseInt(ggposu) }).toArray();
+    var tmp = await db.collection(table_name).find({ ancUID: parseInt(ggposu) }).toArray();
     for (var t of tmp) {
       oriArray.push(t);
       gposua.push(t._id);
@@ -926,7 +927,7 @@ app.get("/8chon/:_id", async function (r, answer) {
 
   var myBroua = [];
   for (var gposu of gposua) {
-    var tmp = await db.collection("post2").find({ ancUID: parseInt(gposu) }).toArray();
+    var tmp = await db.collection(table_name).find({ ancUID: parseInt(gposu) }).toArray();
     for (var t of tmp) {
       oriArray.push(t);
       myBroua.push(t._id);
@@ -935,7 +936,7 @@ app.get("/8chon/:_id", async function (r, answer) {
 
   var sonua = [];
   for (var myBrou of myBroua) {
-    var tmp = await db.collection("post2").find({ ancUID: parseInt(myBrou) }).toArray();
+    var tmp = await db.collection(table_name).find({ ancUID: parseInt(myBrou) }).toArray();
     for (var t of tmp) {
       oriArray.push(t);
       sonua.push(t._id);
@@ -944,7 +945,7 @@ app.get("/8chon/:_id", async function (r, answer) {
 
   var gsonua = [];
   for (var sonu of sonua) {
-    var tmp = await db.collection("post2").find({ ancUID: parseInt(sonu) }).toArray();
+    var tmp = await db.collection(table_name).find({ ancUID: parseInt(sonu) }).toArray();
     for (var t of tmp) {
       oriArray.push(t);
       gsonua.push(t._id);
@@ -953,7 +954,7 @@ app.get("/8chon/:_id", async function (r, answer) {
 
   //증손자까지 떠야한다고하면 부활시키면됩니다. 2023-03-02 slu
   // for (var gsonu of gsonua) {
-  //   var tmp = await db.collection("post2").find({ ancUID: parseInt(gsonu) }).toArray();
+  //   var tmp = await db.collection(table_name).find({ ancUID: parseInt(gsonu) }).toArray();
   //if(tmp==null||tmp==[]){break;}
   //   for (var t of tmp) {
   //     oriArray.push(t);
@@ -1031,7 +1032,7 @@ app.get("/8chon/:_id", async function (r, answer) {
 
 //모든 사람 이름+한자+세 별uid (uid순으로 나타내주는 페이지)
 app.get("/uid", async function (r, a) {
-  const res = await db.collection("post2").find().toArray();
+  const res = await db.collection(table_name).find().toArray();
 
   var upgdArr = [];
   for (obj of res) {
@@ -1052,7 +1053,7 @@ app.get("/whole/:partition", async function (r, answer) { //partition 에 1넣�
   var maxSae = partition * 5 + 1;
   if (maxSae < 1) maxSae = 1;
   var minSae = maxSae - 7;
-  var z = await db.collection("post2").find({ mySae: { $gt: minSae, $lt: maxSae } }).sort({ _id: 1 }).toArray();
+  var z = await db.collection(table_name).find({ mySae: { $gt: minSae, $lt: maxSae } }).sort({ _id: 1 }).toArray();
   var oriArray = z;
   var upgArray = [];
   var jangnam = "";
@@ -1157,7 +1158,7 @@ app.get("/test", function (r, a) {
 app.post("/execute", function (r, a) {
   a.send("실행됨");
   //UNIT
-  db.collection("post2").insertOne(
+  db.collection(table_name).insertOne(
     {
       _id: parseInt(r.body._id),
       ancUID: parseInt(r.body.ancUID),
