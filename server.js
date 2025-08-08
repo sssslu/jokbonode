@@ -7,15 +7,18 @@ app.use(express.json());
 app.use(cors());
 var db;
 table_name = "post2"
+special_table = ""
 
 MongoClient.connect(
   "mongodb+srv://jokbo:1111@cluster0.kawqw2r.mongodb.net/?retryWrites=true&w=majority",//보안허술
   function (e, client) {
     if (e) return console.log(e);
-    app.listen(process.env.PORT || 8080, function () {
-      console.log("listening on " + (process.env.PORT || 8080)); //외부 요청 있을시 그 포트로 엶
-      db = client.db("jokbonode");
-    });
+
+
+    app.listen(process.env.PORT || 8080, "0.0.0.0", function () {
+    console.log("✅ listening on 0.0.0.0:" + (process.env.PORT || 8080));
+    db = client.db("jokbonode");
+     });
   }
 );
 

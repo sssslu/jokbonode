@@ -1,0 +1,21 @@
+app = "jokbonode"  # fly.io에 만든 앱 이름
+primary_region = "sin"  # 싱가포르, 지역 맞춰서 수정
+
+[build]
+  builder = "heroku/builder:24"
+
+[env]
+  PORT = "8080"
+
+[[services]]
+  internal_port = 8080
+  processes = ["app"]
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
