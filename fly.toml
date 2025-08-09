@@ -19,3 +19,6 @@ primary_region = "sin"  # 싱가포르, 지역 맞춰서 수정
   [[services.ports]]
     handlers = ["tls", "http"]
     port = 443
+
+    [[vm]]
+  size = 'shared-cpu-1x'
