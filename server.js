@@ -5,6 +5,7 @@ const MongoClient = require("mongodb").MongoClient;
 app.use(express.urlencoded({ extended: true })); //slu : nodejs 에서 html body를 제대로 읽어오려면 이 옵션을 넣어줘야함
 app.use(express.json());
 app.use(cors());
+
 var db;
 //table_name = "post2"
 table_name = "sample"
@@ -1175,4 +1176,16 @@ app.post("/execute", function (r, a) {
     }
   );
   //UNIT
+
+});
+  //----많은 데이터 넣기용 함수 (@@@@ 주의 필요 @@@@)
+app.post("/insertMany", async function (req, res) {
+  console.log('>> wiring /insertMany');
+  try {
+    const result = await db.collection("sample").insertMany(req.body); //콜랙션 명 잘 보고 사용
+    res.json({ insertedCount: result.insertedCount });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
