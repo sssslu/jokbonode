@@ -1,5 +1,5 @@
-app = "jokbonode"  # fly.io에 만든 앱 이름
-primary_region = "sin"  # 싱가포르, 지역 맞춰서 수정
+app = "jokbonode"
+primary_region = "nrt"
 
 [build]
   builder = "heroku/builder:24"
@@ -22,3 +22,8 @@ primary_region = "sin"  # 싱가포르, 지역 맞춰서 수정
 
     [[vm]]
   size = 'shared-cpu-1x'
+
+[http_service]
+  auto_start_machines = true
+  auto_stop_machines = false
+  min_machines_running = 0

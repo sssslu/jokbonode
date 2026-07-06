@@ -11,8 +11,7 @@ var db;
 table_name = "sample"
 
 MongoClient.connect(
-//  "mongodb+srv://jokbo:1111@cluster0.kawqw2r.mongodb.net/?retryWrites=true&w=majority",//보안허술
-"mongodb+srv://slu:123456789a!@cluster0.a0gfppu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+"mongodb+srv://jokbo:1111@cluster0.kawqw2r.mongodb.net/?retryWrites=true&w=majority",//보안허술
   function (e, client) {
     if (e) return console.log(e);
 
